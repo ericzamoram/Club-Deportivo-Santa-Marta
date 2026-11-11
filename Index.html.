@@ -1,0 +1,1206 @@
+```html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Club Deportivo Santa Marta - Recaudación de Cuotas Sociales</title>
+    <!-- Web App & Mobile Optimization Meta Tags -->
+    <meta name="theme-color" content="#046A38">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CD Santa Marta">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        clubGreen: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            500: '#10b981',
+                            600: '#00875a',
+                            700: '#046a38',
+                            800: '#03522b',
+                            900: '#023c1f',
+                            950: '#012513',
+                        },
+                        clubGold: {
+                            300: '#fde047',
+                            400: '#facc15',
+                            500: '#eab308',
+                            gold: '#D4AF37',
+                            lightGold: '#F3E5AB'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white; color: black; }
+        }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #00875a; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800 flex flex-col antialiased selection:bg-clubGreen-500 selection:text-white">
+
+    <!-- Header Principal -->
+    <header class="bg-clubGreen-900 text-white border-b-4 border-clubGold-gold shadow-md sticky top-0 z-40 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap justify-between items-center gap-3">
+            
+            <!-- Brand & Editable Crest -->
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-14 shrink-0 drop-shadow-md cursor-pointer relative group" onclick="document.getElementById('crest-file-input').click()" title="Haz clic o toca para subir tu propia insignia o foto del club">
+                    <div id="header-crest-container" class="w-full h-full flex items-center justify-center overflow-hidden rounded">
+                        <!-- SVG Crest default template -->
+                    </div>
+                    <div class="absolute inset-0 bg-black/60 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white text-[9px] text-center font-bold px-1 leading-tight">
+                        Cambiar Logo
+                    </div>
+                </div>
+                <input type="file" id="crest-file-input" accept="image/*" class="hidden" onchange="handleCrestUpload(event)">
+                
+                <div>
+                    <h1 class="text-lg sm:text-xl font-black tracking-tight text-white leading-tight flex items-center gap-2">
+                        Club Deportivo Santa Marta
+                        <span class="text-[10px] bg-clubGold-gold text-slate-950 font-black px-2 py-0.5 rounded uppercase tracking-wide">1964</span>
+                    </h1>
+                    <p class="text-[11px] text-clubGreen-200 font-medium flex items-center gap-1">
+                        <i data-lucide="shield-check" class="w-3.5 h-3.5 text-clubGreen-500"></i> Portal Oficial de Recaudación
+                    </p>
+                </div>
+            </div>
+
+            <!-- View Mode Switcher Buttons -->
+            <div class="flex items-center bg-clubGreen-950 p-1 rounded-xl border border-clubGreen-800 w-full sm:w-auto justify-stretch">
+                <button id="btn-view-member" onclick="switchView('member')" class="flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center space-x-2 bg-clubGreen-600 text-white shadow-sm">
+                    <i data-lucide="user-check" class="w-4 h-4"></i>
+                    <span>Portal Socio (En Línea)</span>
+                </button>
+                <button id="btn-view-admin" onclick="switchView('admin')" class="flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center space-x-2 text-clubGreen-200 hover:text-white">
+                    <i data-lucide="shield" class="w-4 h-4"></i>
+                    <span>Acceso Administrador</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 flex-1 w-full">
+
+        <!-- ========================================== -->
+        <!-- VIEW 1: MEMBER ONLINE PAYMENT PORTAL      -->
+        <!-- ========================================== -->
+        <section id="view-member" class="space-y-6">
+            <!-- Hero Banner -->
+            <div class="bg-gradient-to-r from-clubGreen-950 via-clubGreen-900 to-clubGreen-800 rounded-2xl p-5 sm:p-8 text-white shadow-xl flex flex-col md:flex-row justify-between items-center gap-6 border-2 border-clubGold-gold/40 relative overflow-hidden">
+                <div class="flex items-center gap-4 sm:gap-6 z-10 w-full md:w-auto">
+                    <div id="hero-crest-container" class="w-20 h-24 sm:w-24 sm:h-28 shrink-0 bg-white/10 p-2 rounded-2xl backdrop-blur-md border border-clubGold-gold/50 shadow-2xl flex items-center justify-center overflow-hidden">
+                        <!-- Crest dynamically injected -->
+                    </div>
+
+                    <div class="space-y-1">
+                        <span class="bg-clubGold-gold text-slate-950 border border-clubGold-300 text-[10px] px-2.5 py-0.5 rounded-full font-black uppercase tracking-wider inline-block">Fundado el 12 de Octubre de 1964</span>
+                        <h2 class="text-xl sm:text-3xl font-black tracking-tight leading-tight">Paga tu Cuota Social en Línea</h2>
+                        <p class="text-clubGreen-100 text-xs sm:text-sm">Mantén al día tu compromiso con el club. Notificación directa a WhatsApp y comprobante automático por correo.</p>
+                    </div>
+                </div>
+
+                <!-- Price Badges -->
+                <div class="flex sm:flex-col gap-3 w-full md:w-auto z-10">
+                    <div class="bg-white/10 backdrop-blur-md p-3 sm:p-4 rounded-xl border border-white/20 text-center flex-1">
+                        <span class="text-[10px] uppercase text-clubGreen-200 font-semibold block">Cuota Mensual</span>
+                        <span class="text-xl sm:text-2xl font-black text-white" id="hero-display-monthly">$5.000 <span class="text-xs font-normal text-clubGreen-200">CLP</span></span>
+                    </div>
+                    <div class="bg-clubGold-gold/20 backdrop-blur-md p-3 sm:p-4 rounded-xl border border-clubGold-gold/60 text-center flex-1 relative">
+                        <span class="absolute -top-2 right-2 bg-clubGold-gold text-slate-950 text-[9px] font-black px-1.5 py-0.5 rounded uppercase shadow">Ahorro Anual</span>
+                        <span class="text-[10px] uppercase text-clubGold-lightGold font-bold block">Cuota Anual</span>
+                        <span class="text-xl sm:text-2xl font-black text-white" id="hero-display-annual">$50.000 <span class="text-xs font-normal text-clubGold-lightGold">CLP</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flow Layout: Member Form + Checkout -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
+                
+                <!-- Left: Form Step 1 & 2 -->
+                <div class="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-8 space-y-6">
+                    <div class="border-b border-slate-100 pb-4 flex justify-between items-center">
+                        <div>
+                            <h3 class="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
+                                <span class="w-7 h-7 rounded-full bg-clubGreen-700 text-white text-xs flex items-center justify-center font-bold">1</span>
+                                Datos del Socio
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-0.5">Ingresa los datos para registrar el pago en el padrón.</p>
+                        </div>
+                        <button type="button" onclick="document.getElementById('crest-file-input').click()" class="text-xs bg-clubGreen-50 text-clubGreen-700 border border-clubGreen-300 font-semibold px-2.5 py-1.5 rounded-lg hover:bg-clubGreen-100 transition flex items-center gap-1.5">
+                            <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                            <span class="hidden sm:inline">Cambiar</span> Logo
+                        </button>
+                    </div>
+
+                    <form id="member-form" onsubmit="event.preventDefault(); validateMemberForm();" class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">RUT del Socio *</label>
+                                <input type="text" id="member-rut" required placeholder="12.345.678-9" oninput="formatRut(this)" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-clubGreen-600 focus:border-clubGreen-600 text-sm font-semibold outline-none transition">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nombre Completo *</label>
+                                <input type="text" id="member-name" required placeholder="Juan Pérez Soto" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-clubGreen-600 focus:border-clubGreen-600 text-sm font-medium outline-none transition">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Categoría *</label>
+                                <select id="member-category" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-clubGreen-600 focus:border-clubGreen-600 text-sm font-medium outline-none transition bg-white">
+                                    <option value="Adulto">Adulto</option>
+                                    <option value="Cadetes">Cadetes</option>
+                                    <option value="Infantil">Infantil</option>
+                                    <option value="Juvenil">Juvenil</option>
+                                    <option value="Senior">Senior</option>
+                                    <option value="Super Senior">Super Senior</option>
+                                    <option value="Honor">Socio de Honor</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Correo Electrónico *</label>
+                                <input type="email" id="member-email" required placeholder="socio@ejemplo.com" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-clubGreen-600 focus:border-clubGreen-600 text-sm font-medium outline-none transition">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Teléfono Móvil *</label>
+                                <input type="tel" id="member-phone" required placeholder="+56 9 1234 5678" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-clubGreen-600 focus:border-clubGreen-600 text-sm font-medium outline-none transition">
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Plan Selection -->
+                        <div class="pt-4 border-t border-slate-100">
+                            <h3 class="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2 mb-3">
+                                <span class="w-7 h-7 rounded-full bg-clubGreen-700 text-white text-xs flex items-center justify-center font-bold">2</span>
+                                Selecciona el Plan a Cancelar
+                            </h3>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                                <label class="relative border-2 rounded-xl p-4 cursor-pointer transition-all flex flex-col justify-between plan-card border-clubGreen-600 bg-clubGreen-50/30" id="card-plan-monthly">
+                                    <input type="radio" name="plan_type" value="mensual" checked onclick="selectPlan('mensual')" class="sr-only">
+                                    <div>
+                                        <div class="flex justify-between items-center mb-1">
+                                            <span class="font-bold text-slate-900 text-sm">Cuota Mensual</span>
+                                            <span class="w-5 h-5 rounded-full border-2 border-clubGreen-600 bg-clubGreen-600 flex items-center justify-center text-white font-bold text-xs" id="radio-dot-mensual">✓</span>
+                                        </div>
+                                        <p class="text-xs text-slate-500">Membresía activa por 1 mes calendario.</p>
+                                    </div>
+                                    <div class="mt-3 pt-2 border-t border-slate-200/60 text-lg sm:text-xl font-extrabold text-slate-900">
+                                        <span id="plan-price-monthly-display">$5.000</span> <span class="text-xs font-normal text-slate-500">/ mes</span>
+                                    </div>
+                                </label>
+
+                                <label class="relative border-2 border-slate-200 rounded-xl p-4 cursor-pointer hover:border-clubGreen-600 transition-all flex flex-col justify-between plan-card" id="card-plan-annual">
+                                    <input type="radio" name="plan_type" value="anual" onclick="selectPlan('anual')" class="sr-only">
+                                    <div>
+                                        <div class="flex justify-between items-center mb-1">
+                                            <span class="font-bold text-slate-900 text-sm">Cuota Anual</span>
+                                            <span class="w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center text-transparent font-bold text-xs" id="radio-dot-anual">✓</span>
+                                        </div>
+                                        <p class="text-xs text-slate-500">Acceso completo 12 meses (Ahorro garantizado).</p>
+                                    </div>
+                                    <div class="mt-3 pt-2 border-t border-slate-200/60">
+                                        <span class="text-lg sm:text-xl font-extrabold text-clubGreen-700" id="plan-price-annual-display">$50.000</span>
+                                        <span class="text-xs font-normal text-slate-500"> / año</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="pt-2">
+                            <button type="submit" class="w-full bg-clubGreen-700 hover:bg-clubGreen-800 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg hover:shadow-clubGreen-700/20 transition duration-200 flex items-center justify-center space-x-2 text-sm sm:text-base">
+                                <i data-lucide="shield-check" class="w-5 h-5"></i>
+                                <span>Proceder con los Datos de Pago</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Right: Step 3 Payment Details Box -->
+                <div class="lg:col-span-5 bg-clubGreen-950 text-white rounded-2xl shadow-xl p-5 sm:p-7 flex flex-col justify-between border border-clubGreen-900 relative overflow-hidden">
+                    <div>
+                        <div class="flex justify-between items-center border-b border-clubGreen-900 pb-3 mb-5">
+                            <h3 class="text-base font-bold text-white flex items-center gap-2">
+                                <span class="w-7 h-7 rounded-full bg-clubGreen-600 text-white text-xs flex items-center justify-center font-bold">3</span>
+                                Pago y Datos de Tesorería
+                            </h3>
+                            <span class="text-[10px] bg-clubGreen-800 text-clubGreen-200 font-mono px-2 py-0.5 rounded border border-clubGreen-700 flex items-center gap-1">
+                                <span class="w-2 h-2 rounded-full bg-clubGreen-400 animate-pulse"></span> Verificado
+                            </span>
+                        </div>
+
+                        <!-- Resumen del Pago Selected -->
+                        <div class="bg-clubGreen-900/80 rounded-xl p-3.5 mb-5 border border-clubGreen-800 space-y-1.5">
+                            <div class="text-[10px] text-clubGreen-300 font-bold uppercase tracking-wider">Resumen de Cuota a Pagar</div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-slate-200 font-medium" id="summary-plan-title">Cuota Mensual</span>
+                                <span class="font-extrabold text-white text-base" id="summary-plan-amount">$5.000 CLP</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs text-clubGreen-200 pt-1.5 border-t border-clubGreen-800/80">
+                                <span>Titular Socio:</span>
+                                <span id="summary-member-name" class="font-semibold text-white">Por completar...</span>
+                            </div>
+                        </div>
+
+                        <!-- Bank Details Box Dynamic -->
+                        <div class="bg-clubGreen-900 p-4 rounded-xl border border-clubGreen-800 space-y-2 text-xs mb-5 shadow-inner">
+                            <div class="font-bold text-clubGold-300 uppercase tracking-wide flex items-center justify-between border-b border-clubGreen-800 pb-2">
+                                <span class="flex items-center gap-1.5"><i data-lucide="landmark" class="w-4 h-4 text-clubGold-400"></i> Cuenta de Recaudación</span>
+                                <span class="text-[9px] bg-clubGreen-700 px-2 py-0.5 rounded text-white font-mono" id="bank-name-tag">Mercado Pago</span>
+                            </div>
+                            <div class="flex justify-between"><span class="text-clubGreen-200">Titular:</span> <span class="font-semibold text-white" id="bank-holder-display">José Lepe Flores</span></div>
+                            <div class="flex justify-between"><span class="text-clubGreen-200">RUT Titular:</span> <span class="font-mono font-bold text-white" id="bank-rut-display">11.521.090-4</span></div>
+                            <div class="flex justify-between"><span class="text-clubGreen-200">Tipo Cuenta:</span> <span class="font-semibold text-white" id="bank-type-display">Cuenta Vista</span></div>
+                            <div class="flex justify-between"><span class="text-clubGreen-200">N° Cuenta:</span> <span class="font-mono font-bold text-clubGold-300 text-sm" id="bank-number-display">1093318599</span></div>
+                            <div class="flex justify-between border-t border-clubGreen-800/80 pt-1.5"><span class="text-clubGreen-200">Correo Notificación:</span> <span class="font-semibold text-white font-mono text-[11px]" id="bank-email-display">Jose.lepe.f@gmail.com</span></div>
+                        </div>
+
+                        <!-- Payment Method Toggle -->
+                        <div class="space-y-2">
+                            <label class="block text-[11px] font-bold uppercase tracking-wider text-clubGreen-300">Selecciona Método de Pago</label>
+                            <div class="grid grid-cols-2 gap-2.5">
+                                <button type="button" onclick="setOnlinePaymentMethod('transfer')" id="pay-tab-transfer" class="p-3 rounded-xl border-2 border-clubGreen-500 bg-clubGreen-900 font-semibold text-xs flex flex-col items-center justify-center gap-1.5 text-white transition shadow-sm">
+                                    <i data-lucide="arrow-left-right" class="w-5 h-5 text-clubGreen-400"></i>
+                                    <span>Transferencia Directa</span>
+                                </button>
+                                <button type="button" onclick="setOnlinePaymentMethod('webpay')" id="pay-tab-webpay" class="p-3 rounded-xl border border-clubGreen-900 bg-clubGreen-900/40 font-semibold text-xs flex flex-col items-center justify-center gap-1.5 text-clubGreen-300 hover:text-white transition">
+                                    <i data-lucide="credit-card" class="w-5 h-5"></i>
+                                    <span>Pasarela Webpay</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-3 border-t border-clubGreen-900">
+                        <button type="button" onclick="executeOnlinePayment()" class="w-full bg-clubGreen-500 hover:bg-clubGreen-600 text-slate-950 font-black py-3.5 px-4 rounded-xl shadow-lg transition duration-200 flex items-center justify-center space-x-2 text-sm sm:text-base">
+                            <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                            <span id="btn-pay-text">Confirmar y Emitir Comprobante</span>
+                        </button>
+                        <p class="text-[10px] text-clubGreen-300 text-center mt-2.5 leading-tight">
+                            Al confirmar se abrirá **WhatsApp** para notificar al número <strong class="text-white font-mono" id="bank-phone-display">+56964704432</strong> y se enviará copia a tu correo.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Access Link to Admin Box -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-clubGreen-100 text-clubGreen-700 flex items-center justify-center font-bold shrink-0">
+                        <i data-lucide="user-cog" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-900 text-sm">¿Eres tesorero o administrador de la aplicación?</h4>
+                        <p class="text-xs text-slate-500">Ingresa al panel para cobrar cuotas en efectivo, ajustar valores de cuota y editar datos bancarios.</p>
+                    </div>
+                </div>
+                <button onclick="switchView('admin')" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-bold transition flex items-center justify-center gap-2 shrink-0">
+                    <i data-lucide="lock" class="w-4 h-4"></i>
+                    <span>Abrir Panel de Administración</span>
+                </button>
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- VIEW 2: ADMINISTRATOR CASH COLLECTION PANEL-->
+        <!-- ========================================== -->
+        <section id="view-admin" class="hidden space-y-6">
+            
+            <!-- Admin Header Banner -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-200">
+                <div class="flex items-center gap-4">
+                    <div id="admin-crest-container" class="w-12 h-14 shrink-0 overflow-hidden flex items-center justify-center">
+                        <!-- Crest -->
+                    </div>
+                    <div>
+                        <span class="bg-clubGreen-800 text-white text-[10px] font-black px-2.5 py-0.5 rounded-md uppercase tracking-wider">Caja & Tesorería</span>
+                        <h2 class="text-xl sm:text-2xl font-black text-slate-900 mt-0.5">Módulo de Administración del Club</h2>
+                        <p class="text-xs text-slate-500">Recaudación presencial en efectivo, configuración de cuentas y métricas.</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-2 w-full md:w-auto">
+                    <button onclick="openCashModal()" class="flex-1 md:flex-none bg-clubGreen-700 hover:bg-clubGreen-800 text-white px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm shadow-sm flex items-center justify-center space-x-2 transition">
+                        <i data-lucide="banknote" class="w-4 h-4"></i>
+                        <span>Cobrar en Efectivo (Caja)</span>
+                    </button>
+                    <button onclick="exportToCSV()" class="flex-1 md:flex-none bg-slate-800 hover:bg-slate-900 text-white px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm shadow-sm flex items-center justify-center space-x-2 transition">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                        <span>Exportar CSV</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+                <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200">
+                    <div class="text-[11px] font-bold text-slate-400 uppercase">Recaudación Total</div>
+                    <div class="text-2xl sm:text-3xl font-black text-slate-900 mt-1" id="stat-total">$0</div>
+                    <div class="text-xs text-slate-500 mt-2 flex items-center justify-between border-t pt-2">
+                        <span>Ingresos Generales</span>
+                        <i data-lucide="vault" class="w-4 h-4 text-slate-400"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200 border-l-4 border-l-clubGreen-600">
+                    <div class="text-[11px] font-bold text-slate-400 uppercase">Recaudado en Efectivo</div>
+                    <div class="text-2xl sm:text-3xl font-black text-clubGreen-700 mt-1" id="stat-cash">$0</div>
+                    <div class="text-xs text-slate-500 mt-2 flex items-center justify-between border-t pt-2">
+                        <span>Caja presencial</span>
+                        <i data-lucide="hand-coins" class="w-4 h-4 text-clubGreen-600"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200 border-l-4 border-l-emerald-500">
+                    <div class="text-[11px] font-bold text-slate-400 uppercase">Recaudación Electrónica</div>
+                    <div class="text-2xl sm:text-3xl font-black text-emerald-600 mt-1" id="stat-electronic">$0</div>
+                    <div class="text-xs text-slate-500 mt-2 flex items-center justify-between border-t pt-2">
+                        <span>Webpay / Transferencia</span>
+                        <i data-lucide="globe" class="w-4 h-4 text-emerald-500"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200 border-l-4 border-l-clubGreen-800">
+                    <div class="text-[11px] font-bold text-slate-400 uppercase">Socios Registrados</div>
+                    <div class="text-2xl sm:text-3xl font-black text-slate-900 mt-1" id="stat-members-count">0</div>
+                    <div class="text-xs text-slate-500 mt-2 flex items-center justify-between border-t pt-2">
+                        <span>Padrón de Cuotas</span>
+                        <i data-lucide="users" class="w-4 h-4 text-clubGreen-700"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Editable Settings Section (Admin Config) -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-7 space-y-5">
+                <div class="border-b border-slate-100 pb-3 flex justify-between items-center flex-wrap gap-2">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base sm:text-lg flex items-center gap-2">
+                            <i data-lucide="sliders" class="w-5 h-5 text-clubGreen-700"></i>
+                            Configuración Editable de Tesorería y Tarifas
+                        </h3>
+                        <p class="text-xs text-slate-500">Actualiza los datos bancarios y el valor de las cuotas para que se reflejen al instante en toda la app.</p>
+                    </div>
+                    <span class="text-[11px] bg-clubGreen-100 text-clubGreen-800 font-bold px-2.5 py-1 rounded-full border border-clubGreen-200">Guarda en memoria local</span>
+                </div>
+
+                <form id="treasury-settings-form" onsubmit="event.preventDefault(); saveTreasurySettings();" class="space-y-4">
+                    <!-- Config values: Prices -->
+                    <div class="bg-clubGreen-50/50 p-4 rounded-xl border border-clubGreen-200 space-y-3">
+                        <span class="text-xs font-black text-clubGreen-800 uppercase tracking-wider block">Valores Oficiales de Cuotas Sociales</span>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Cuota Mensual ($ CLP)</label>
+                                <input type="number" id="cfg-fee-monthly" required min="1000" step="500" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 font-bold text-slate-900 text-sm focus:ring-2 focus:ring-clubGreen-600 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Cuota Anual ($ CLP)</label>
+                                <input type="number" id="cfg-fee-annual" required min="10000" step="1000" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 font-bold text-slate-900 text-sm focus:ring-2 focus:ring-clubGreen-600 outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Config values: Bank Account & WhatsApp -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nombre Titular de Cuenta</label>
+                            <input type="text" id="cfg-bank-holder" required class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-clubGreen-600 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">RUT Titular</label>
+                            <input type="text" id="cfg-bank-rut" required oninput="formatRut(this)" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-clubGreen-600 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Institución / Banco</label>
+                            <input type="text" id="cfg-bank-name" required class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-clubGreen-600 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Tipo de Cuenta</label>
+                            <input type="text" id="cfg-bank-type" required class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-clubGreen-600 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Número de Cuenta</label>
+                            <input type="text" id="cfg-bank-number" required class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-clubGreen-600 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Correo de Notificación</label>
+                            <input type="email" id="cfg-bank-email" required class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-clubGreen-600 outline-none">
+                        </div>
+                        <div class="sm:col-span-2 lg:col-span-3">
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">WhatsApp de Tesorería (Formato +569...)</label>
+                            <input type="text" id="cfg-bank-phone" required class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-clubGreen-600 outline-none">
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end pt-2">
+                        <button type="submit" class="bg-clubGreen-700 hover:bg-clubGreen-800 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-md transition flex items-center gap-2">
+                            <i data-lucide="save" class="w-4 h-4"></i>
+                            <span>Guardar Parámetros de Tesorería</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Table section with filters -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <h3 class="font-bold text-slate-900 text-base sm:text-lg flex items-center gap-2">
+                        <i data-lucide="receipt" class="w-5 h-5 text-clubGreen-700"></i>
+                        Historial de Registros y Transacciones
+                    </h3>
+
+                    <div class="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+                        <div class="relative flex-1 md:w-64">
+                            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400"></i>
+                            <input type="text" id="filter-search" onkeyup="renderTable()" placeholder="Buscar por RUT o Nombre..." class="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-clubGreen-600">
+                        </div>
+                        <select id="filter-method" onchange="renderTable()" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none bg-white">
+                            <option value="ALL">Todos los Medios</option>
+                            <option value="Efectivo">Solo Efectivo</option>
+                            <option value="Transferencia">Transferencia</option>
+                            <option value="Webpay">Webpay</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-500 font-bold border-b border-slate-200 uppercase tracking-wider">
+                                <th class="p-3.5">Folio / Fecha</th>
+                                <th class="p-3.5">Socio / RUT</th>
+                                <th class="p-3.5">Categoría</th>
+                                <th class="p-3.5">Concepto</th>
+                                <th class="p-3.5">Monto</th>
+                                <th class="p-3.5">Medio Pago</th>
+                                <th class="p-3.5 text-center">Recibo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactions-table-body" class="divide-y divide-slate-100 font-medium text-slate-700">
+                            <!-- Dynamic Content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- ========================================== -->
+    <!-- MODAL: RECIBO / COMPROBANTE OFICIAL        -->
+    <!-- ========================================== -->
+    <div id="receipt-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200 transform transition-all my-auto max-h-[95vh] flex flex-col">
+            
+            <div class="bg-clubGreen-900 text-white p-4 border-b-4 border-clubGreen-500 flex justify-between items-center no-print shrink-0">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="receipt" class="w-5 h-5 text-clubGold-400"></i>
+                    <h3 class="font-bold text-sm sm:text-base">Comprobante Oficial de Cuota</h3>
+                </div>
+                <button onclick="closeReceiptModal()" class="text-clubGreen-200 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div id="receipt-content" class="p-5 space-y-3.5 overflow-y-auto flex-1">
+                <!-- Receipt Branding -->
+                <div class="text-center border-b pb-3 flex flex-col items-center">
+                    <div id="receipt-crest-container" class="w-14 h-16 mb-1.5 flex items-center justify-center overflow-hidden">
+                        <!-- Crest -->
+                    </div>
+                    <div class="inline-block bg-clubGreen-800 text-white font-black text-[10px] px-2.5 py-0.5 rounded-full mb-1 tracking-wider uppercase">CLUB DEPORTIVO SANTA MARTA</div>
+                    <h4 class="text-sm sm:text-base font-black text-slate-900 uppercase tracking-tight">Recibo de Cuota Social</h4>
+                    <p class="text-[10px] font-semibold text-clubGreen-800">Fundado el 12 de Octubre de 1964 • Personalidad Jurídica al Día</p>
+                </div>
+
+                <!-- Transaction Details -->
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-1.5 text-xs">
+                    <div class="flex justify-between border-b border-slate-200/60 pb-1">
+                        <span class="text-slate-500">N° Folio:</span>
+                        <span class="font-mono font-bold text-slate-900" id="rec-folio">#SM-0000</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-200/60 pb-1">
+                        <span class="text-slate-500">Fecha y Hora:</span>
+                        <span class="font-semibold text-slate-800" id="rec-date">00/00/0000 00:00</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-200/60 pb-1">
+                        <span class="text-slate-500">RUT Socio:</span>
+                        <span class="font-mono font-bold text-slate-900" id="rec-rut">12.345.678-9</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-200/60 pb-1">
+                        <span class="text-slate-500">Nombre Socio:</span>
+                        <span class="font-bold text-slate-900 uppercase" id="rec-name">Juan Pérez</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-200/60 pb-1">
+                        <span class="text-slate-500">Categoría:</span>
+                        <span class="font-semibold text-slate-800" id="rec-cat">Adulto</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-200/60 pb-1">
+                        <span class="text-slate-500">Concepto / Plan:</span>
+                        <span class="font-semibold text-slate-800" id="rec-concept">Cuota Social Mensual</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-200/60 pb-1">
+                        <span class="text-slate-500">Medio de Pago:</span>
+                        <span class="font-bold text-clubGreen-700 uppercase" id="rec-method">Transferencia</span>
+                    </div>
+                </div>
+
+                <!-- Total Amount Badge -->
+                <div class="bg-clubGreen-900 text-white p-3 rounded-xl flex justify-between items-center">
+                    <span class="text-xs font-semibold uppercase text-clubGreen-200">Monto Total Recibido:</span>
+                    <span class="text-xl font-black text-clubGold-300" id="rec-total">$5.000 CLP</span>
+                </div>
+
+                <!-- Action Button WhatsApp -->
+                <div class="bg-emerald-50 border border-emerald-300 p-3 rounded-xl text-center space-y-1.5 no-print">
+                    <p class="text-[11px] text-emerald-900 font-medium leading-tight">Envía este comprobante al WhatsApp oficial de Tesorería:</p>
+                    <a id="whatsapp-share-btn" href="#" target="_blank" class="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-xl text-xs shadow transition w-full">
+                        <i data-lucide="message-square" class="w-4 h-4"></i>
+                        <span>Notificar por WhatsApp a Tesorería</span>
+                    </a>
+                </div>
+
+                <div class="text-center text-[9px] text-slate-400 italic">
+                    Documento de respaldo digital emitido por la plataforma oficial del Club Deportivo Santa Marta.
+                </div>
+            </div>
+
+            <div class="bg-slate-100 p-3 border-t border-slate-200 flex justify-end space-x-2 no-print shrink-0">
+                <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-900 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
+                    <i data-lucide="printer" class="w-4 h-4"></i>
+                    <span>Imprimir</span>
+                </button>
+                <button onclick="closeReceiptModal()" class="bg-clubGreen-700 hover:bg-clubGreen-800 text-white px-4 py-2 rounded-xl text-xs font-bold transition">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- MODAL: REGISTRO DE PAGO EN EFECTIVO (ADMIN)-->
+    <!-- ========================================== -->
+    <div id="cash-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200">
+            <div class="bg-clubGreen-900 text-white p-4 border-b-4 border-clubGreen-500 flex justify-between items-center">
+                <h3 class="font-bold text-sm flex items-center gap-2">
+                    <i data-lucide="banknote" class="w-4 h-4 text-clubGold-400"></i>
+                    Cobro de Cuota en Efectivo (Caja Presencial)
+                </h3>
+                <button onclick="closeCashModal()" class="text-clubGreen-200 hover:text-white">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <form onsubmit="event.preventDefault(); submitCashPayment();" class="p-5 space-y-3.5">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">RUT Socio *</label>
+                    <input type="text" id="cash-rut" required placeholder="12.345.678-9" oninput="formatRut(this)" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:ring-2 focus:ring-clubGreen-600 outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nombre Completo Socio *</label>
+                    <input type="text" id="cash-name" required placeholder="Pedro Morales" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-medium focus:ring-2 focus:ring-clubGreen-600 outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Categoría</label>
+                        <select id="cash-category" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-clubGreen-600 outline-none bg-white">
+                            <option value="Adulto">Adulto</option>
+                            <option value="Cadetes">Cadetes</option>
+                            <option value="Infantil">Infantil</option>
+                            <option value="Juvenil">Juvenil</option>
+                            <option value="Senior">Senior</option>
+                            <option value="Super Senior">Super Senior</option>
+                            <option value="Honor">Honor</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Plan de Cuota *</label>
+                        <select id="cash-plan" onchange="updateCashAmountHint()" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-clubGreen-600 outline-none bg-white">
+                            <option value="mensual">Mensual</option>
+                            <option value="anual">Anual</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Mes o Período Recaudado *</label>
+                    <input type="text" id="cash-period" placeholder="Ej: Noviembre 2026" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-medium focus:ring-2 focus:ring-clubGreen-600 outline-none">
+                </div>
+
+                <div class="bg-clubGreen-50 border border-clubGreen-200 p-3 rounded-xl text-center">
+                    <span class="text-[10px] text-clubGreen-800 font-bold uppercase block">Monto a Ingresar a Caja</span>
+                    <span id="cash-amount-display" class="text-xl font-black text-clubGreen-900">$5.000 CLP</span>
+                </div>
+
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeCashModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-clubGreen-700 hover:bg-clubGreen-800 text-white rounded-xl text-xs font-bold shadow-md transition">
+                        Registrar Pago en Efectivo
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification Message Box -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-clubGreen-950 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3 text-xs font-semibold transform translate-y-20 opacity-0 transition-all duration-300 z-50 border border-clubGreen-800">
+        <i data-lucide="check-circle" id="toast-icon" class="w-5 h-5 text-clubGreen-400"></i>
+        <span id="toast-message">Operación realizada con éxito</span>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Official SVG Crest Vector
+        const defaultCrestSVG = `<svg viewBox="0 0 300 380" class="w-full h-full">
+            <defs>
+                <linearGradient id="goldGradD" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#FFF2B2"/><stop offset="50%" stop-color="#D4AF37"/><stop offset="100%" stop-color="#AA7C11"/>
+                </linearGradient>
+                <linearGradient id="silverGradD" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#FFFFFF"/><stop offset="50%" stop-color="#C0C0C0"/><stop offset="100%" stop-color="#707070"/>
+                </linearGradient>
+                <linearGradient id="bgGreenGradD" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#067841"/><stop offset="100%" stop-color="#023C1F"/>
+                </linearGradient>
+            </defs>
+            <path d="M 150 10 L 285 10 L 285 220 Q 285 320 150 375 Q 15 320 15 220 L 15 10 Z" fill="#FFFFFF" stroke="url(#silverGradD)" stroke-width="6"/>
+            <path d="M 150 65 L 235 65 L 235 210 Q 235 285 150 325 Q 65 285 65 210 L 65 65 Z" fill="url(#bgGreenGradD)" stroke="url(#goldGradD)" stroke-width="5"/>
+            <g fill="url(#goldGradD)">
+                <polygon points="150,75 156,180 150,285 144,180"/>
+                <polygon points="75,180 150,174 225,180 150,186"/>
+                <polygon points="95,125 150,176 205,235 146,184"/>
+                <polygon points="205,125 154,180 95,235 144,176"/>
+            </g>
+            <text x="150" y="200" font-family="'Inter', sans-serif" font-weight="900" font-size="52" fill="url(#silverGradD)" stroke="#111" stroke-width="2" text-anchor="middle" dominant-baseline="middle">SM</text>
+            <text x="150" y="48" font-family="'Inter', sans-serif" font-weight="900" font-size="28" fill="#000000" text-anchor="middle">SANTA</text>
+            <text x="38" y="180" font-family="'Inter', sans-serif" font-weight="900" font-size="24" fill="#000000" text-anchor="middle" transform="rotate(-90 38 180)">C. D.</text>
+            <text x="262" y="180" font-family="'Inter', sans-serif" font-weight="900" font-size="24" fill="#000000" text-anchor="middle" transform="rotate(90 262 180)">MARTA</text>
+            <text x="150" y="360" font-family="'Inter', sans-serif" font-weight="900" font-size="20" fill="#000000" text-anchor="middle">12 OCTUBRE 1964</text>
+        </svg>`;
+
+        // Global State
+        let state = {
+            selectedPlan: 'mensual',
+            onlineMethod: 'transfer',
+            customCrestData: null,
+            settings: {
+                feeMonthly: 5000,
+                feeAnnual: 50000,
+                bankHolder: 'José Lepe Flores',
+                bankRut: '11.521.090-4',
+                bankName: 'Mercado Pago',
+                bankType: 'Cuenta Vista',
+                bankNumber: '1093318599',
+                bankEmail: 'Jose.lepe.f@gmail.com',
+                bankPhone: '+56964704432'
+            },
+            transactions: [
+                {
+                    folio: 'SM-1082',
+                    date: '2026-11-10 16:45',
+                    rut: '14.520.311-8',
+                    name: 'Rodrigo Araya Silva',
+                    category: 'Adulto',
+                    concept: 'Cuota Social Mensual',
+                    amount: 5000,
+                    method: 'Webpay',
+                    status: 'Pagado'
+                },
+                {
+                    folio: 'SM-1083',
+                    date: '2026-11-11 11:20',
+                    rut: '10.982.441-K',
+                    name: 'Manuel Castro Morales',
+                    category: 'Senior',
+                    concept: 'Cuota Social Anual',
+                    amount: 50000,
+                    method: 'Efectivo',
+                    status: 'Pagado'
+                }
+            ]
+        };
+
+        // Initialize App
+        window.onload = function() {
+            // Load Settings from LocalStorage
+            const savedSettings = localStorage.getItem('santa_marta_settings');
+            if(savedSettings) {
+                try { state.settings = { ...state.settings, ...JSON.parse(savedSettings) }; } catch(e){}
+            }
+
+            // Load Transactions from LocalStorage
+            const savedData = localStorage.getItem('santa_marta_dues_db');
+            if(savedData) {
+                try { state.transactions = JSON.parse(savedData); } catch(e){}
+            }
+
+            // Load Custom Crest Image if available
+            const savedCrest = localStorage.getItem('santa_marta_crest_img');
+            if(savedCrest) {
+                state.customCrestData = savedCrest;
+                applyCrestToContainers(savedCrest);
+            } else {
+                applyCrestToContainers(null);
+            }
+
+            // Populate Admin Settings inputs
+            populateSettingsForm();
+            updateUIWithSettings();
+            renderTable();
+            updateStats();
+
+            // Initialize Lucide icons
+            lucide.createIcons();
+        };
+
+        function saveData() {
+            localStorage.setItem('santa_marta_dues_db', JSON.stringify(state.transactions));
+        }
+
+        function saveSettingsToStorage() {
+            localStorage.setItem('santa_marta_settings', JSON.stringify(state.settings));
+        }
+
+        // Apply SVG or Image to all logo containers
+        function applyCrestToContainers(imgSrc) {
+            const containers = ['header-crest-container', 'hero-crest-container', 'admin-crest-container', 'receipt-crest-container'];
+            containers.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) {
+                    if(imgSrc) {
+                        el.innerHTML = `<img src="${imgSrc}" class="w-full h-full object-contain drop-shadow-md" alt="Insignia Club Deportivo Santa Marta">`;
+                    } else {
+                        el.innerHTML = defaultCrestSVG;
+                    }
+                }
+            });
+        }
+
+        // Handle Crest File Upload (Android / iOS Photo / File)
+        function handleCrestUpload(event) {
+            const file = event.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Img = e.target.result;
+                state.customCrestData = base64Img;
+                localStorage.setItem('santa_marta_crest_img', base64Img);
+                applyCrestToContainers(base64Img);
+                showToast("Insignia del club actualizada correctamente en la app");
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // View Switcher
+        function switchView(view) {
+            const memberSec = document.getElementById('view-member');
+            const adminSec = document.getElementById('view-admin');
+            const btnMember = document.getElementById('btn-view-member');
+            const btnAdmin = document.getElementById('btn-view-admin');
+
+            if(view === 'member') {
+                memberSec.classList.remove('hidden');
+                adminSec.classList.add('hidden');
+                btnMember.className = "flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center space-x-2 bg-clubGreen-600 text-white shadow-sm";
+                btnAdmin.className = "flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center space-x-2 text-clubGreen-200 hover:text-white";
+            } else {
+                memberSec.classList.add('hidden');
+                adminSec.classList.remove('hidden');
+                btnAdmin.className = "flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center space-x-2 bg-clubGreen-600 text-white shadow-sm";
+                btnMember.className = "flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center space-x-2 text-clubGreen-200 hover:text-white";
+                renderTable();
+                updateStats();
+            }
+        }
+
+        // Chilean RUT Formatter
+        function formatRut(input) {
+            let value = input.value.replace(/[^0-9kK]/g, '');
+            if (value.length > 1) {
+                let dv = value.slice(-1);
+                let body = value.slice(0, -1);
+                body = body.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                input.value = body + "-" + dv;
+            } else {
+                input.value = value;
+            }
+        }
+
+        // Populate Admin Settings Inputs
+        function populateSettingsForm() {
+            document.getElementById('cfg-fee-monthly').value = state.settings.feeMonthly;
+            document.getElementById('cfg-fee-annual').value = state.settings.feeAnnual;
+            document.getElementById('cfg-bank-holder').value = state.settings.bankHolder;
+            document.getElementById('cfg-bank-rut').value = state.settings.bankRut;
+            document.getElementById('cfg-bank-name').value = state.settings.bankName;
+            document.getElementById('cfg-bank-type').value = state.settings.bankType;
+            document.getElementById('cfg-bank-number').value = state.settings.bankNumber;
+            document.getElementById('cfg-bank-email').value = state.settings.bankEmail;
+            document.getElementById('cfg-bank-phone').value = state.settings.bankPhone;
+        }
+
+        // Save Treasury Settings
+        function saveTreasurySettings() {
+            state.settings.feeMonthly = parseInt(document.getElementById('cfg-fee-monthly').value) || 5000;
+            state.settings.feeAnnual = parseInt(document.getElementById('cfg-fee-annual').value) || 50000;
+            state.settings.bankHolder = document.getElementById('cfg-bank-holder').value;
+            state.settings.bankRut = document.getElementById('cfg-bank-rut').value;
+            state.settings.bankName = document.getElementById('cfg-bank-name').value;
+            state.settings.bankType = document.getElementById('cfg-bank-type').value;
+            state.settings.bankNumber = document.getElementById('cfg-bank-number').value;
+            state.settings.bankEmail = document.getElementById('cfg-bank-email').value;
+            state.settings.bankPhone = document.getElementById('cfg-bank-phone').value;
+
+            saveSettingsToStorage();
+            updateUIWithSettings();
+            showToast("Configuración de Tesorería guardada con éxito");
+        }
+
+        // Update UI displays dynamically
+        function updateUIWithSettings() {
+            const fmtMonthly = '$' + state.settings.feeMonthly.toLocaleString('es-CL');
+            const fmtAnnual = '$' + state.settings.feeAnnual.toLocaleString('es-CL');
+
+            document.getElementById('hero-display-monthly').innerHTML = `${fmtMonthly} <span class="text-xs font-normal text-clubGreen-200">CLP</span>`;
+            document.getElementById('hero-display-annual').innerHTML = `${fmtAnnual} <span class="text-xs font-normal text-clubGold-lightGold">CLP</span>`;
+            
+            document.getElementById('plan-price-monthly-display').textContent = fmtMonthly;
+            document.getElementById('plan-price-annual-display').textContent = fmtAnnual;
+
+            document.getElementById('bank-holder-display').textContent = state.settings.bankHolder;
+            document.getElementById('bank-rut-display').textContent = state.settings.bankRut;
+            document.getElementById('bank-name-tag').textContent = state.settings.bankName;
+            document.getElementById('bank-type-display').textContent = state.settings.bankType;
+            document.getElementById('bank-number-display').textContent = state.settings.bankNumber;
+            document.getElementById('bank-email-display').textContent = state.settings.bankEmail;
+            document.getElementById('bank-phone-display').textContent = state.settings.bankPhone;
+
+            selectPlan(state.selectedPlan);
+            updateCashAmountHint();
+        }
+
+        // Select Plan
+        function selectPlan(plan) {
+            state.selectedPlan = plan;
+            const cardMensual = document.getElementById('card-plan-monthly');
+            const cardAnual = document.getElementById('card-plan-annual');
+            const dotMensual = document.getElementById('radio-dot-mensual');
+            const dotAnual = document.getElementById('radio-dot-anual');
+            const titleSummary = document.getElementById('summary-plan-title');
+            const amountSummary = document.getElementById('summary-plan-amount');
+
+            const currentPrice = plan === 'mensual' ? state.settings.feeMonthly : state.settings.feeAnnual;
+            const formattedPrice = '$' + currentPrice.toLocaleString('es-CL') + ' CLP';
+
+            if(plan === 'mensual') {
+                cardMensual.className = "relative border-2 rounded-xl p-4 cursor-pointer transition-all flex flex-col justify-between plan-card border-clubGreen-600 bg-clubGreen-50/30";
+                cardAnual.className = "relative border-2 border-slate-200 rounded-xl p-4 cursor-pointer hover:border-clubGreen-600 transition-all flex flex-col justify-between plan-card";
+                dotMensual.className = "w-5 h-5 rounded-full border-2 border-clubGreen-600 bg-clubGreen-600 flex items-center justify-center text-white font-bold text-xs";
+                dotAnual.className = "w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center text-transparent font-bold text-xs";
+                titleSummary.textContent = "Cuota Social Mensual";
+            } else {
+                cardAnual.className = "relative border-2 rounded-xl p-4 cursor-pointer transition-all flex flex-col justify-between plan-card border-clubGreen-600 bg-clubGreen-50/30";
+                cardMensual.className = "relative border-2 border-slate-200 rounded-xl p-4 cursor-pointer hover:border-clubGreen-600 transition-all flex flex-col justify-between plan-card";
+                dotAnual.className = "w-5 h-5 rounded-full border-2 border-clubGreen-600 bg-clubGreen-600 flex items-center justify-center text-white font-bold text-xs";
+                dotMensual.className = "w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center text-transparent font-bold text-xs";
+                titleSummary.textContent = "Cuota Social Anual";
+            }
+
+            amountSummary.textContent = formattedPrice;
+        }
+
+        // Toggle Payment Method
+        function setOnlinePaymentMethod(method) {
+            state.onlineMethod = method;
+            const tabTransfer = document.getElementById('pay-tab-transfer');
+            const tabWebpay = document.getElementById('pay-tab-webpay');
+
+            if(method === 'transfer') {
+                tabTransfer.className = "p-3 rounded-xl border-2 border-clubGreen-500 bg-clubGreen-900 font-semibold text-xs flex flex-col items-center justify-center gap-1.5 text-white transition shadow-sm";
+                tabWebpay.className = "p-3 rounded-xl border border-clubGreen-900 bg-clubGreen-900/40 font-semibold text-xs flex flex-col items-center justify-center gap-1.5 text-clubGreen-300 hover:text-white transition";
+            } else {
+                tabWebpay.className = "p-3 rounded-xl border-2 border-clubGreen-500 bg-clubGreen-900 font-semibold text-xs flex flex-col items-center justify-center gap-1.5 text-white transition shadow-sm";
+                tabTransfer.className = "p-3 rounded-xl border border-clubGreen-900 bg-clubGreen-900/40 font-semibold text-xs flex flex-col items-center justify-center gap-1.5 text-clubGreen-300 hover:text-white transition";
+            }
+        }
+
+        function validateMemberForm() {
+            const name = document.getElementById('member-name').value;
+            if(!name) {
+                showToast("Por favor ingresa tu nombre completo", "error");
+                return;
+            }
+            document.getElementById('summary-member-name').textContent = name;
+            showToast("Datos de socio confirmados. Procede al pago.");
+        }
+
+        // Execute Online Payment
+        function executeOnlinePayment() {
+            const rut = document.getElementById('member-rut').value;
+            const name = document.getElementById('member-name').value;
+            const category = document.getElementById('member-category').value;
+            const email = document.getElementById('member-email').value;
+
+            if(!rut || !name || !email) {
+                showToast("Por favor completa los datos obligatorios del socio", "error");
+                return;
+            }
+
+            const amount = state.selectedPlan === 'mensual' ? state.settings.feeMonthly : state.settings.feeAnnual;
+            const concept = state.selectedPlan === 'mensual' ? 'Cuota Social Mensual' : 'Cuota Social Anual';
+            const folio = 'SM-' + Math.floor(1000 + Math.random() * 9000);
+            const dateStr = new Date().toLocaleString('es-CL');
+            const method = state.onlineMethod === 'transfer' ? 'Transferencia' : 'Webpay';
+
+            const newTx = {
+                folio: folio,
+                date: dateStr,
+                rut: rut,
+                name: name,
+                category: category,
+                concept: concept,
+                amount: amount,
+                method: method,
+                status: 'Pagado'
+            };
+
+            state.transactions.unshift(newTx);
+            saveData();
+            showReceiptModal(newTx);
+
+            // Trigger WhatsApp Native App
+            const rawPhone = state.settings.bankPhone.replace(/[^0-9]/g, '');
+            const message = `Hola Club Deportivo Santa Marta 👋, envío el comprobante de mi pago de cuota social:\n\n- Folio: #${folio}\n- RUT: ${rut}\n- Socio: ${name}\n- Categoría: ${category}\n- Concepto: ${concept}\n- Monto: $${amount.toLocaleString('es-CL')} CLP (${method})\n- Correo socio: ${email}\n- Fecha: ${dateStr}\n\nNotificación enviada a ${state.settings.bankEmail}. ¡Arriba Santa Marta! ⚽`;
+            const encodedMsg = encodeURIComponent(message);
+            
+            showToast("Pago registrado. Abriendo WhatsApp de Tesorería...");
+            setTimeout(() => {
+                window.open(`https://wa.me/${rawPhone}?text=${encodedMsg}`, '_blank');
+            }, 800);
+
+            document.getElementById('member-form').reset();
+            document.getElementById('summary-member-name').textContent = "Por completar...";
+        }
+
+        // Cash Admin Payment Submit
+        function submitCashPayment() {
+            const rut = document.getElementById('cash-rut').value;
+            const name = document.getElementById('cash-name').value;
+            const category = document.getElementById('cash-category').value;
+            const plan = document.getElementById('cash-plan').value;
+            const period = document.getElementById('cash-period').value;
+
+            if(!rut || !name || !period) {
+                showToast("Por favor completa todos los campos del formulario", "error");
+                return;
+            }
+
+            const amount = plan === 'mensual' ? state.settings.feeMonthly : state.settings.feeAnnual;
+            const concept = plan === 'mensual' ? `Cuota Mensual (${period})` : `Cuota Anual (${period})`;
+            const folio = 'SM-' + Math.floor(1000 + Math.random() * 9000);
+            const dateStr = new Date().toLocaleString('es-CL');
+
+            const newTx = {
+                folio: folio,
+                date: dateStr,
+                rut: rut,
+                name: name,
+                category: category,
+                concept: concept,
+                amount: amount,
+                method: 'Efectivo',
+                status: 'Pagado'
+            };
+
+            state.transactions.unshift(newTx);
+            saveData();
+            closeCashModal();
+            renderTable();
+            updateStats();
+            showReceiptModal(newTx);
+            showToast("Pago en efectivo registrado e ingresado a caja");
+        }
+
+        function updateCashAmountHint() {
+            const plan = document.getElementById('cash-plan').value;
+            const amount = plan === 'mensual' ? state.settings.feeMonthly : state.settings.feeAnnual;
+            document.getElementById('cash-amount-display').textContent = '$' + amount.toLocaleString('es-CL') + ' CLP';
+        }
+
+        // Show Printable Receipt Modal
+        function showReceiptModal(tx) {
+            document.getElementById('rec-folio').textContent = '#' + tx.folio;
+            document.getElementById('rec-date').textContent = tx.date;
+            document.getElementById('rec-rut').textContent = tx.rut;
+            document.getElementById('rec-name').textContent = tx.name;
+            document.getElementById('rec-cat').textContent = tx.category;
+            document.getElementById('rec-concept').textContent = tx.concept;
+            document.getElementById('rec-method').textContent = tx.method;
+            document.getElementById('rec-total').textContent = '$' + tx.amount.toLocaleString('es-CL') + ' CLP';
+
+            // WhatsApp link button inside receipt
+            const rawPhone = state.settings.bankPhone.replace(/[^0-9]/g, '');
+            const message = `Hola Club Deportivo Santa Marta 👋, envío el comprobante de pago de cuota social:\n\n- Folio: #${tx.folio}\n- RUT: ${tx.rut}\n- Socio: ${tx.name}\n- Concepto: ${tx.concept}\n- Monto: $${tx.amount.toLocaleString('es-CL')} CLP (${tx.method})\n- Fecha: ${tx.date}\n\nGracias.`;
+            const encodedMsg = encodeURIComponent(message);
+            document.getElementById('whatsapp-share-btn').href = `https://wa.me/${rawPhone}?text=${encodedMsg}`;
+
+            document.getElementById('receipt-modal').classList.remove('hidden');
+        }
+
+        function closeReceiptModal() {
+            document.getElementById('receipt-modal').classList.add('hidden');
+        }
+
+        function openCashModal() {
+            document.getElementById('cash-modal').classList.remove('hidden');
+        }
+
+        function closeCashModal() {
+            document.getElementById('cash-modal').classList.add('hidden');
+        }
+
+        // Render Table (Admin)
+        function renderTable() {
+            const tbody = document.getElementById('transactions-table-body');
+            const search = document.getElementById('filter-search').value.toLowerCase();
+            const methodFilter = document.getElementById('filter-method').value;
+
+            const filtered = state.transactions.filter(tx => {
+                const matchesSearch = tx.rut.toLowerCase().includes(search) || tx.name.toLowerCase().includes(search);
+                const matchesMethod = methodFilter === 'ALL' || tx.method === methodFilter;
+                return matchesSearch && matchesMethod;
+            });
+
+            if(filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400">No hay registros de cuotas sociales para mostrar.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(tx => `
+                <tr class="hover:bg-slate-50/80 transition">
+                    <td class="p-3.5">
+                        <div class="font-bold font-mono text-slate-900">#${tx.folio}</div>
+                        <div class="text-[10px] text-slate-400">${tx.date}</div>
+                    </td>
+                    <td class="p-3.5">
+                        <div class="font-bold text-slate-900">${tx.name}</div>
+                        <div class="text-[10px] text-slate-500 font-mono">${tx.rut}</div>
+                    </td>
+                    <td class="p-3.5">
+                        <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-bold">${tx.category}</span>
+                    </td>
+                    <td class="p-3.5 text-slate-600">${tx.concept}</td>
+                    <td class="p-3.5 font-black text-slate-900">$${tx.amount.toLocaleString('es-CL')}</td>
+                    <td class="p-3.5">
+                        <span class="px-2 py-0.5 rounded-lg text-[10px] font-bold ${
+                            tx.method === 'Efectivo' ? 'bg-clubGreen-100 text-clubGreen-800 border border-clubGreen-300' :
+                            tx.method === 'Webpay' ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-teal-100 text-teal-800 border border-teal-300'
+                        }">
+                            ${tx.method}
+                        </span>
+                    </td>
+                    <td class="p-3.5 text-center">
+                        <button onclick='showReceiptModal(${JSON.stringify(tx)})' title="Ver Recibo" class="p-1.5 text-slate-600 hover:text-clubGreen-700 hover:bg-clubGreen-50 rounded-lg transition">
+                            <i data-lucide="file-text" class="w-4 h-4"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        // Update Statistics
+        function updateStats() {
+            let total = 0;
+            let cash = 0;
+            let electronic = 0;
+            const uniqueMembers = new Set();
+
+            state.transactions.forEach(tx => {
+                total += tx.amount;
+                if(tx.method === 'Efectivo') {
+                    cash += tx.amount;
+                } else {
+                    electronic += tx.amount;
+                }
+                uniqueMembers.add(tx.rut);
+            });
+
+            document.getElementById('stat-total').textContent = '$' + total.toLocaleString('es-CL');
+            document.getElementById('stat-cash').textContent = '$' + cash.toLocaleString('es-CL');
+            document.getElementById('stat-electronic').textContent = '$' + electronic.toLocaleString('es-CL');
+            document.getElementById('stat-members-count').textContent = uniqueMembers.size;
+        }
+
+        // Export CSV File
+        function exportToCSV() {
+            let csv = "\uFEFF"; // UTF-8 BOM
+            csv += "Folio,Fecha,RUT,Nombre,Categoria,Concepto,Monto,MedioPago,Estado\n";
+            state.transactions.forEach(tx => {
+                csv += `"${tx.folio}","${tx.date}","${tx.rut}","${tx.name}","${tx.category}","${tx.concept}",${tx.amount},"${tx.method}","${tx.status}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Cuotas_CD_Santa_Marta_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("Planilla CSV descargada con éxito");
+        }
+
+        // Toast Message System
+        function showToast(msg, type = "success") {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMsg.textContent = msg;
+            if(type === "error") {
+                toastIcon.setAttribute('data-lucide', 'alert-circle');
+                toastIcon.className = "w-5 h-5 text-red-400";
+            } else {
+                toastIcon.setAttribute('data-lucide', 'check-circle');
+                toastIcon.className = "w-5 h-5 text-clubGreen-400";
+            }
+            lucide.createIcons();
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3200);
+        }
+    </script>
+</body>
+</html>
+```
