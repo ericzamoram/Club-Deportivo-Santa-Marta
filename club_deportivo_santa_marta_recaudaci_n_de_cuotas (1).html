@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Club Deportivo Santa Marta - Recaudación de Cuotas</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        club: {
+                            50: '#eef8f1',
+                            100: '#d5edd9',
+                            500: '#2e7d32',
+                            600: '#1b5e20',
+                            700: '#144618',
+                            accent: '#4caf50'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f4f7f4; }
+        .tab-active { border-bottom: 3px solid #1b5e20; color: #1b5e20; font-weight: 700; }
+        @media print {
+            body * { visibility: hidden; }
+            #printable-receipt, #printable-receipt * { visibility: visible; }
+            #printable-receipt { position: absolute; left: 0; top: 0; width: 100%; }
+        }
+    </style>
+</head>
+<body class="min-h-screen text-gray-800 flex flex-col justify-between">
+
+    <!-- Top Header Bar -->
+    <header class="bg-club-600 text-white shadow-lg sticky top-0 z-40">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="relative group cursor-pointer" onclick="openBadgeModal()" title="Haz clic para cambiar la insignia">
+                    <img id="header-logo" src="https://placehold.co/120x120/1b5e20/ffffff?text=CDSM" alt="Insignia CD Santa Marta" class="w-12 h-12 object-contain bg-white rounded-full p-1 border-2 border-green-300 shadow">
+                    <div class="absolute inset-0 bg-black bg-opacity-40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <i class="fas fa-camera text-white text-xs"></i>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-extrabold tracking-tight">Club Deportivo Santa Marta</h1>
+                    <div class="flex items-center space-x-2">
+                        <p class="text-xs text-green-200 font-medium">Portal Oficial de Recaudación</p>
+                        <span id="sync-status" class="inline-flex items-center text-[10px] bg-green-800 text-green-200 px-2 py-0.5 rounded-full">
+                            <span class="w-1.5 h-1.5 rounded-full bg-green-400 mr-1 animate-pulse"></span> En línea
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View Switcher & Admin Button -->
+            <div class="flex items-center space-x-2">
+                <button id="btn-mode-socio" onclick="switchView('socio')" class="px-3 py-1.5 rounded-lg text-xs md:text-sm font-semibold bg-white text-club-600 shadow transition-all hover:bg-green-50">
+                    <i class="fas fa-user-check mr-1"></i> Modo Socio
+                </button>
+                <button id="btn-mode-admin" onclick="openAdminModal()" class="px-3 py-1.5 rounded-lg text-xs md:text-sm font-extrabold bg-amber-400 hover:bg-amber-500 text-gray-900 shadow-lg transition-all animate-bounce hover:animate-none">
+                    <i class="fas fa-user-shield mr-1"></i> Panel Administrador ⚙️
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-6xl mx-auto px-4 py-6 flex-grow w-full">
+
+        <!-- ================= SOCIO / PUBLIC VIEW ================= -->
+        <section id="view-socio" class="space-y-6">
+            <!-- Hero / Welcome Banner -->
+            <div class="bg-gradient-to-r from-club-600 to-club-500 rounded-2xl p-6 text-white shadow-md flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="space-y-2 text-center md:text-left">
+                    <span class="bg-green-700 text-green-200 text-xs px-2.5 py-1 rounded-full font-semibold uppercase tracking-wider">Recaudación Oficial 2026</span>
+                    <h2 class="text-2xl md:text-3xl font-bold">¡Apoya a nuestro querido Club!</h2>
+                    <p class="text-green-100 text-sm max-w-xl">Paga tu cuota social al día o aporta voluntariamente a través de transferencia bancaria electrónica rápida y segura.</p>
+                </div>
+                <div class="flex-shrink-0">
+                    <img id="hero-badge" src="https://placehold.co/120x120/1b5e20/ffffff?text=CDSM" alt="Insignia" class="w-24 h-24 object-contain bg-white rounded-full p-2 border-4 border-green-300 shadow-xl">
+                </div>
+            </div>
+
+            <!-- Payment Form Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                <!-- Left Column: Step 1 & Step 2 -->
+                <div class="lg:col-span-2 space-y-6">
+                    
+                    <!-- Step 1: Select Type of Payment -->
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                        <div class="flex items-center space-x-2 border-b border-gray-100 pb-3 mb-4">
+                            <span class="w-7 h-7 bg-club-600 text-white rounded-full flex items-center justify-center font-bold text-sm">1</span>
+                            <h3 class="text-lg font-bold text-gray-800">Selecciona el tipo de pago</h3>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <!-- Option Mensual -->
+                            <label class="cursor-pointer">
+                                <input type="radio" name="payType" value="mensual" checked onchange="updatePayType()" class="peer hidden">
+                                <div class="p-4 rounded-xl border-2 border-gray-200 peer-checked:border-club-600 peer-checked:bg-green-50 transition-all text-center h-full flex flex-col justify-between hover:border-club-500">
+                                    <div class="text-club-600 mb-2"><i class="fas fa-calendar-alt text-2xl"></i></div>
+                                    <div class="font-bold text-gray-800">Cuota Mensual</div>
+                                    <div class="text-xs text-gray-500 mt-1">Aporte regular</div>
+                                    <div class="text-lg font-extrabold text-club-600 mt-3" id="display-val-mensual">$5.000</div>
+                                </div>
+                            </label>
+
+                            <!-- Option Anual -->
+                            <label class="cursor-pointer">
+                                <input type="radio" name="payType" value="anual" onchange="updatePayType()" class="peer hidden">
+                                <div class="p-4 rounded-xl border-2 border-gray-200 peer-checked:border-club-600 peer-checked:bg-green-50 transition-all text-center h-full flex flex-col justify-between hover:border-club-500">
+                                    <div class="text-club-600 mb-2"><i class="fas fa-star text-2xl"></i></div>
+                                    <div class="font-bold text-gray-800">Cuota Anual</div>
+                                    <div class="text-xs text-gray-500 mt-1">Año completo</div>
+                                    <div class="text-lg font-extrabold text-club-600 mt-3" id="display-val-anual">$50.000</div>
+                                </div>
+                            </label>
+
+                            <!-- Option Donacion -->
+                            <label class="cursor-pointer">
+                                <input type="radio" name="payType" value="donacion" onchange="updatePayType()" class="peer hidden">
+                                <div class="p-4 rounded-xl border-2 border-gray-200 peer-checked:border-club-600 peer-checked:bg-green-50 transition-all text-center h-full flex flex-col justify-between hover:border-club-500">
+                                    <div class="text-club-600 mb-2"><i class="fas fa-hand-holding-heart text-2xl"></i></div>
+                                    <div class="font-bold text-gray-800">Donación Libre</div>
+                                    <div class="text-xs text-gray-500 mt-1">Aporte especial</div>
+                                    <div class="text-sm font-bold text-gray-600 mt-3">Monto Personalizado</div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Custom Amount Input -->
+                        <div id="custom-amount-container" class="mt-4 hidden bg-green-50 p-4 rounded-xl border border-green-200">
+                            <label class="block text-xs font-bold text-club-600 uppercase mb-1">Monto de Donación ($ CLP):</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold">$</span>
+                                <input type="number" id="input-custom-amount" min="1000" step="500" placeholder="Ej: 15000" oninput="calculateTotal()" class="w-full pl-8 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-club-600 focus:outline-none font-bold text-gray-800">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Member Details & Transfer Voucher -->
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                        <div class="flex items-center space-x-2 border-b border-gray-100 pb-3 mb-4">
+                            <span class="w-7 h-7 bg-club-600 text-white rounded-full flex items-center justify-center font-bold text-sm">2</span>
+                            <h3 class="text-lg font-bold text-gray-800">Datos del Socio y Comprobante</h3>
+                        </div>
+
+                        <form id="form-socio-datos" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Nombre Completo *</label>
+                                <input type="text" id="socio-nombre" required placeholder="Ej. Juan Pérez Soto" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-club-600 focus:outline-none text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">RUT *</label>
+                                <input type="text" id="socio-rut" required placeholder="12.345.678-9" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-club-600 focus:outline-none text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Correo Electrónico *</label>
+                                <input type="email" id="socio-email" required placeholder="ejemplo@correo.cl" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-club-600 focus:outline-none text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Teléfono / WhatsApp *</label>
+                                <input type="tel" id="socio-phone" required placeholder="+56912345678" value="+569" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-club-600 focus:outline-none text-sm">
+                            </div>
+                            <div class="md:col-span-2 bg-gray-50 p-3 rounded-xl border border-gray-200">
+                                <label class="block text-xs font-semibold text-gray-700 mb-1"><i class="fas fa-file-upload mr-1 text-club-600"></i> N° de Transacción o Carga Comprobante</label>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <input type="text" id="socio-num-trx" placeholder="Ej: N° Transacción 98765432" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-club-600 focus:outline-none text-sm">
+                                    <input type="file" id="socio-file" accept="image/*,.pdf" onchange="convertFileToBase64(this)" class="block w-full text-xs text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-green-100 file:text-club-600 hover:file:bg-green-200">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+
+                <!-- Right Column: Step 3 Bank Details & Payment Confirmation -->
+                <div class="space-y-6">
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between h-full">
+                        <div>
+                            <div class="flex items-center space-x-2 border-b border-gray-100 pb-3 mb-4">
+                                <span class="w-7 h-7 bg-club-600 text-white rounded-full flex items-center justify-center font-bold text-sm">3</span>
+                                <h3 class="text-lg font-bold text-gray-800">Datos Bancarios Tesorería</h3>
+                            </div>
+
+                            <p class="text-xs text-gray-500 mb-3">Realiza la transferencia bancaria electrónica por el monto exacto a:</p>
+
+                            <!-- Bank Data Box -->
+                            <div class="bg-green-50 border border-green-200 rounded-xl p-4 text-xs space-y-2.5 mb-4 shadow-inner">
+                                <div class="flex justify-between border-b border-green-200 pb-1.5">
+                                    <span class="text-gray-600 font-medium">Tesorero:</span>
+                                    <span class="font-bold text-gray-900" id="bank-tesorero">José Lepe Flores</span>
+                                </div>
+                                <div class="flex justify-between border-b border-green-200 pb-1.5">
+                                    <span class="text-gray-600 font-medium">RUT Tesorero:</span>
+                                    <span class="font-bold text-gray-900" id="bank-rut">11.521.090-4</span>
+                                </div>
+                                <div class="flex justify-between border-b border-green-200 pb-1.5">
+                                    <span class="text-gray-600 font-medium">Banco / Cuenta:</span>
+                                    <span class="font-bold text-gray-900" id="bank-tipo">Cuenta Vista Mercado Pago</span>
+                                </div>
+                                <div class="flex justify-between border-b border-green-200 pb-1.5">
+                                    <span class="text-gray-600 font-medium">N° de Cuenta:</span>
+                                    <span class="font-bold text-club-600 text-sm select-all" id="bank-num">1093318599</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 font-medium">Correo Tesorería:</span>
+                                    <span class="font-bold text-gray-900 text-[11px] select-all" id="bank-email">Jose.lepe.f@gmail.com</span>
+                                </div>
+                            </div>
+
+                            <!-- Total Summary -->
+                            <div class="bg-club-600 text-white p-4 rounded-xl flex justify-between items-center mb-6 shadow-md">
+                                <div>
+                                    <span class="text-xs uppercase text-green-200 block font-bold">Monto Total Aporte</span>
+                                    <span class="text-xs text-green-100" id="summary-pay-type">Cuota Mensual</span>
+                                </div>
+                                <span class="text-2xl font-black" id="summary-total-amount">$5.000</span>
+                            </div>
+                        </div>
+
+                        <!-- Submit Payment Button -->
+                        <button onclick="processSocioPayment()" class="w-full bg-club-600 hover:bg-club-700 text-white py-3.5 px-4 rounded-xl font-bold flex items-center justify-center space-x-2 shadow-lg transition-transform active:scale-95">
+                            <i class="fas fa-check-circle text-xl"></i>
+                            <span class="text-base">Registrar Pago y Generar Envíos</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ================= ADMIN PANEL VIEW ================= -->
+        <section id="view-admin" class="hidden space-y-6">
+            
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-4 rounded-2xl border border-gray-200 shadow-sm gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-club-600 flex items-center">
+                        <i class="fas fa-user-shield mr-2"></i> Panel de Administración y Tesorería
+                    </h2>
+                    <p class="text-xs text-gray-500">Gestión de cuotas, configuración bancaria y recaudación presencial del Club Deportivo Santa Marta</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="switchView('socio')" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg">
+                        <i class="fas fa-arrow-left mr-1"></i> Regresar a Vista Socio
+                    </button>
+                </div>
+            </div>
+
+            <!-- Admin Sub-tabs -->
+            <div class="flex space-x-4 border-b border-gray-200 text-sm overflow-x-auto">
+                <button id="tab-btn-efectivo" onclick="switchAdminTab('efectivo')" class="pb-2 px-1 tab-active font-semibold whitespace-nowrap">
+                    <i class="fas fa-money-bill-wave mr-1"></i> Recaudación Efectivo
+                </button>
+                <button id="tab-btn-config" onclick="switchAdminTab('config')" class="pb-2 px-1 text-gray-500 hover:text-club-600 font-semibold whitespace-nowrap">
+                    <i class="fas fa-cog mr-1"></i> Editar Valores y Bancos
+                </button>
+                <button id="tab-btn-history" onclick="switchAdminTab('history')" class="pb-2 px-1 text-gray-500 hover:text-club-600 font-semibold whitespace-nowrap">
+                    <i class="fas fa-history mr-1"></i> Historial e Informes Excel
+                </button>
+            </div>
+
+            <!-- Admin Tab 1: Recaudación Presencial en Efectivo -->
+            <div id="admin-tab-efectivo" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <h3 class="text-lg font-bold text-gray-800 mb-1">Cobro Presencial / Efectivo por Administrador</h3>
+                <p class="text-xs text-gray-500 mb-4">Registra pagos recibidos directamente por la tesorería del club.</p>
+
+                <form id="form-efectivo" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Nombre Completo del Socio *</label>
+                        <input type="text" id="efectivo-nombre" required placeholder="Nombre del socio" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-club-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">RUT Socio *</label>
+                        <input type="text" id="efectivo-rut" required placeholder="12.345.678-9" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-club-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Correo Electrónico (Opcional)</label>
+                        <input type="email" id="efectivo-email" placeholder="correo@socio.cl" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-club-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">WhatsApp Socio (Opcional)</label>
+                        <input type="tel" id="efectivo-phone" placeholder="+56912345678" value="+569" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-club-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Tipo de Aporte *</label>
+                        <select id="efectivo-tipo" onchange="updateEfectivoMonto()" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-club-600 focus:outline-none bg-white">
+                            <option value="mensual">Cuota Mensual Social</option>
+                            <option value="anual">Cuota Anual Social</option>
+                            <option value="donacion">Aporte / Donación Voluntaria</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Monto Cobrado ($ CLP) *</label>
+                        <input type="number" id="efectivo-monto" required min="1000" class="w-full px-3 py-2 border rounded-lg text-sm font-bold text-club-600 focus:ring-2 focus:ring-club-600 focus:outline-none">
+                    </div>
+
+                    <div class="md:col-span-2 pt-2">
+                        <button type="button" onclick="processCashPayment()" class="w-full bg-club-600 hover:bg-club-700 text-white font-bold py-3 px-4 rounded-xl shadow transition-transform active:scale-95 flex items-center justify-center space-x-2">
+                            <i class="fas fa-hand-holding-usd text-lg"></i>
+                            <span>Registrar Recaudación en Efectivo y Emitir Comprobante</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Admin Tab 2: Configuración de Parámetros -->
+            <div id="admin-tab-config" class="hidden space-y-6">
+                <!-- Editar Valores de Cuota -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between border-b pb-3 mb-4">
+                        <h3 class="text-md font-bold text-gray-800 flex items-center">
+                            <i class="fas fa-edit text-club-600 mr-2"></i> Editar Valores de Cuotas Sociales
+                        </h3>
+                        <span class="text-xs bg-green-100 text-club-600 font-semibold px-2.5 py-1 rounded-full">Sincronizado en línea</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Valor Cuota Mensual ($)</label>
+                            <input type="number" id="edit-val-mensual" class="w-full px-3 py-2 border rounded-lg text-sm font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Valor Cuota Anual ($)</label>
+                            <input type="number" id="edit-val-anual" class="w-full px-3 py-2 border rounded-lg text-sm font-bold">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Editar Datos Bancarios Tesorero -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <h3 class="text-md font-bold text-gray-800 flex items-center border-b pb-3 mb-4">
+                        <i class="fas fa-university text-club-600 mr-2"></i> Editar Datos Bancarios del Tesorero
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Nombre Tesorero</label>
+                            <input type="text" id="edit-bank-tesorero" class="w-full px-3 py-2 border rounded-lg text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">RUT Tesorero</label>
+                            <input type="text" id="edit-bank-rut" class="w-full px-3 py-2 border rounded-lg text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Banco / Tipo Cuenta</label>
+                            <input type="text" id="edit-bank-tipo" class="w-full px-3 py-2 border rounded-lg text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Número de Cuenta</label>
+                            <input type="text" id="edit-bank-num" class="w-full px-3 py-2 border rounded-lg text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Correo Electrónico Notificación</label>
+                            <input type="email" id="edit-bank-email" class="w-full px-3 py-2 border rounded-lg text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">WhatsApp Notificación (+56...)</label>
+                            <input type="text" id="edit-bank-phone" class="w-full px-3 py-2 border rounded-lg text-sm" placeholder="+56964704432">
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="saveAdminSettings()" class="w-full bg-club-600 hover:bg-club-700 text-white font-bold py-3 px-4 rounded-xl shadow transition">
+                    <i class="fas fa-save mr-1"></i> Guardar Cambios de Configuración
+                </button>
+            </div>
+
+            <!-- Admin Tab 3: Historial de Recaudaciones & Exportación -->
+            <div id="admin-tab-history" class="hidden bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800">Historial General de Recaudaciones</h3>
+                        <p class="text-xs text-gray-500">Gestión de transferencias electrónicas y registros en efectivo</p>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button onclick="exportToCSV()" class="px-3 py-2 bg-green-700 hover:bg-green-800 text-white rounded-lg text-xs font-bold flex items-center shadow">
+                            <i class="fas fa-file-excel mr-1 text-sm"></i> Exportar a Excel (CSV)
+                        </button>
+                        <div class="text-right">
+                            <span class="text-xs text-gray-500 block font-medium">Total Recaudado</span>
+                            <span class="text-xl font-black text-club-600" id="total-recaudado">$0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search Filter Bar -->
+                <div class="bg-gray-50 p-3 rounded-xl border flex flex-col md:flex-row gap-2">
+                    <input type="text" id="history-search" onkeyup="filterHistoryTable()" placeholder="Buscar por Nombre, RUT o N° Comprobante..." class="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none">
+                    <select id="history-filter-type" onchange="filterHistoryTable()" class="px-3 py-2 border rounded-lg text-xs bg-white font-semibold">
+                        <option value="todos">Todos los conceptos</option>
+                        <option value="Cuota Mensual">Cuota Mensual</option>
+                        <option value="Cuota Anual">Cuota Anual</option>
+                        <option value="Donación">Donaciones</option>
+                    </select>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-gray-600">
+                        <thead class="bg-gray-50 uppercase text-gray-500 border-b">
+                            <tr>
+                                <th class="p-3">N° Recibo</th>
+                                <th class="p-3">Fecha</th>
+                                <th class="p-3">Socio</th>
+                                <th class="p-3">RUT</th>
+                                <th class="p-3">Concepto</th>
+                                <th class="p-3">Método / Trx</th>
+                                <th class="p-3 text-right">Monto</th>
+                                <th class="p-3 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body" class="divide-y divide-gray-100">
+                            <!-- Rows loaded via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal Admin Prompt -->
+    <div id="modal-admin-login" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl text-center">
+            <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto text-xl">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-800">Acceso Administrador</h3>
+            <p class="text-xs text-gray-500">Ingresa la clave de administración para gestionar la tesorería del club.</p>
+            <div>
+                <input type="password" id="admin-pin-input" placeholder="Ingresa PIN (Clave: 1234)" class="w-full text-center px-4 py-2.5 border-2 rounded-xl text-lg font-bold tracking-widest focus:ring-2 focus:ring-club-600 focus:outline-none">
+            </div>
+            <div class="space-y-2 pt-2">
+                <button onclick="checkAdminPin()" class="w-full bg-club-600 hover:bg-club-700 text-white font-bold py-2.5 rounded-xl text-sm shadow">
+                    Ingresar al Panel
+                </button>
+                <button onclick="quickAdminLogin()" class="w-full bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold py-2 rounded-xl text-xs">
+                    ⚡ Acceso Rápido Demo (PIN 1234)
+                </button>
+                <button onclick="closeAdminModal()" class="w-full text-gray-400 hover:text-gray-600 font-semibold text-xs pt-1">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Cambiar / Cargar Insignia -->
+    <div id="modal-badge" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-bold text-gray-800 text-lg">Actualizar Insignia del Club</h3>
+                <button onclick="closeBadgeModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Cargar Imagen desde tu dispositivo</label>
+                    <input type="file" id="badge-file-input" accept="image/*" onchange="previewBadgeFile(this)" class="block w-full text-xs text-gray-500 file:mr-2 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-green-100 file:text-club-600 hover:file:bg-green-200">
+                </div>
+                <div class="text-center text-xs text-gray-400 font-bold uppercase">ó</div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">URL Web de la Imagen del Escudo</label>
+                    <input type="url" id="badge-url-input" placeholder="https://ejemplo.com/escudo.png" class="w-full px-3 py-2 border rounded-lg text-xs">
+                </div>
+                <div>
+                    <span class="block text-xs font-semibold text-gray-600 mb-1">Vista Previa:</span>
+                    <div class="flex justify-center p-3 border rounded-lg bg-gray-50">
+                        <img id="badge-preview" src="https://placehold.co/120x120/1b5e20/ffffff?text=CDSM" class="w-20 h-20 object-contain rounded-full border shadow">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex space-x-2 pt-2">
+                <button onclick="saveBadge()" class="w-full bg-club-600 text-white font-bold py-2.5 rounded-xl text-xs hover:bg-club-700 shadow">Guardar Escudo</button>
+                <button onclick="closeBadgeModal()" class="w-full bg-gray-100 text-gray-700 font-bold py-2.5 rounded-xl text-xs hover:bg-gray-200">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Receipt / Comprobante Visual -->
+    <div id="modal-receipt" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl relative my-8">
+            <button onclick="closeReceiptModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
+
+            <!-- Printable Receipt Area -->
+            <div id="printable-receipt" class="border-2 border-club-600 rounded-xl p-6 bg-white space-y-4">
+                <div class="flex items-center justify-between border-b pb-4">
+                    <div class="flex items-center space-x-3">
+                        <img id="receipt-badge" src="" class="w-12 h-12 object-contain">
+                        <div>
+                            <h4 class="font-extrabold text-club-600 text-base">CD SANTA MARTA</h4>
+                            <p class="text-[10px] text-gray-500">Comprobante Oficial de Pago</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs bg-green-100 text-club-600 font-bold px-2.5 py-1 rounded-full" id="receipt-id">N° 0000</span>
+                        <p class="text-[10px] text-gray-400 mt-1" id="receipt-date">00/00/0000</p>
+                    </div>
+                </div>
+
+                <div class="space-y-2 text-xs">
+                    <div class="flex justify-between border-b border-gray-100 pb-1">
+                        <span class="text-gray-500">Socio / Nombre:</span>
+                        <span class="font-bold text-gray-800" id="receipt-nombre">-</span>
+                    </div>
+                    <div class="flex justify-between border-b border-gray-100 pb-1">
+                        <span class="text-gray-500">RUT:</span>
+                        <span class="font-bold text-gray-800" id="receipt-rut">-</span>
+                    </div>
+                    <div class="flex justify-between border-b border-gray-100 pb-1">
+                        <span class="text-gray-500">Concepto:</span>
+                        <span class="font-bold text-gray-800" id="receipt-concepto">-</span>
+                    </div>
+                    <div class="flex justify-between border-b border-gray-100 pb-1">
+                        <span class="text-gray-500">Método de Pago:</span>
+                        <span class="font-bold text-gray-800" id="receipt-metodo">-</span>
+                    </div>
+                    <div id="receipt-trx-row" class="flex justify-between border-b border-gray-100 pb-1 hidden">
+                        <span class="text-gray-500">Ref / N° Transacción:</span>
+                        <span class="font-bold text-gray-800" id="receipt-trx">-</span>
+                    </div>
+                </div>
+
+                <div class="bg-club-50 p-3 rounded-lg flex justify-between items-center">
+                    <span class="font-bold text-club-600 text-xs">MONTO REGISTRADO:</span>
+                    <span class="font-black text-club-600 text-xl" id="receipt-monto">$0</span>
+                </div>
+
+                <div class="text-[10px] text-center text-gray-400 pt-2 border-t border-gray-100">
+                    Documento emitido por el Portal Oficial de Recaudación del Club Deportivo Santa Marta.
+                </div>
+            </div>
+
+            <!-- Actions buttons -->
+            <div class="space-y-2 pt-2">
+                <button onclick="window.print()" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center space-x-2">
+                    <i class="fas fa-print"></i>
+                    <span>Imprimir / Descargar en PDF</span>
+                </button>
+                <div class="grid grid-cols-2 gap-2">
+                    <a id="btn-whatsapp-action" target="_blank" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center space-x-1 shadow">
+                        <i class="fab fa-whatsapp text-sm"></i>
+                        <span>Notificar WhatsApp</span>
+                    </a>
+                    <a id="btn-email-action" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center space-x-1 shadow">
+                        <i class="fas fa-envelope text-sm"></i>
+                        <span>Enviar por Correo</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN JAVASCRIPT LOGIC & PERSISTENCE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // APP CONFIG & FIREBASE INITIALIZATION
+        const defaultState = {
+            badgeUrl: 'https://placehold.co/120x120/1b5e20/ffffff?text=CDSM',
+            cuotaMensual: 5000,
+            cuotaAnual: 50000,
+            bankTesorero: 'José Lepe Flores',
+            bankRut: '11.521.090-4',
+            bankTipo: 'Cuenta Vista Mercado Pago',
+            bankNum: '1093318599',
+            bankEmail: 'Jose.lepe.f@gmail.com',
+            bankPhone: '+56964704432',
+            history: []
+        };
+
+        window.appData = JSON.parse(localStorage.getItem('cdsm_data')) || defaultState;
+        window.tempBadgeBase64 = null;
+        window.tempFileBase64 = null;
+
+        // Firebase Integration Setup
+        let db = null;
+        let auth = null;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'cd-santa-marta';
+
+        try {
+            if (typeof __firebase_config !== 'undefined') {
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                const initAuth = async () => {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                };
+
+                initAuth().then(() => {
+                    // Subscribe to real-time changes
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'clubState', 'main');
+                    onSnapshot(docRef, (docSnap) => {
+                        if (docSnap.exists()) {
+                            window.appData = docSnap.data();
+                            localStorage.setItem('cdsm_data', JSON.stringify(window.appData));
+                            renderAppData();
+                            renderHistory();
+                        } else {
+                            // Seed remote database if empty
+                            setDoc(docRef, window.appData);
+                        }
+                    }, (err) => console.log("Firebase sync fallback to local storage", err));
+                });
+            }
+        } catch (e) {
+            console.log("Operating in LocalStorage Mode", e);
+        }
+
+        window.saveToStorage = async function() {
+            localStorage.setItem('cdsm_data', JSON.stringify(window.appData));
+            renderAppData();
+            if (db && auth && auth.currentUser) {
+                try {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'clubState', 'main');
+                    await setDoc(docRef, window.appData);
+                } catch(e) {
+                    console.error("Firestore sync error", e);
+                }
+            }
+        };
+
+        window.renderAppData = function() {
+            document.getElementById('header-logo').src = window.appData.badgeUrl;
+            document.getElementById('hero-badge').src = window.appData.badgeUrl;
+
+            document.getElementById('display-val-mensual').innerText = '$' + Number(window.appData.cuotaMensual).toLocaleString('es-CL');
+            document.getElementById('display-val-anual').innerText = '$' + Number(window.appData.cuotaAnual).toLocaleString('es-CL');
+
+            document.getElementById('bank-tesorero').innerText = window.appData.bankTesorero;
+            document.getElementById('bank-rut').innerText = window.appData.bankRut;
+            document.getElementById('bank-tipo').innerText = window.appData.bankTipo;
+            document.getElementById('bank-num').innerText = window.appData.bankNum;
+            document.getElementById('bank-email').innerText = window.appData.bankEmail;
+
+            document.getElementById('edit-val-mensual').value = window.appData.cuotaMensual;
+            document.getElementById('edit-val-anual').value = window.appData.cuotaAnual;
+            document.getElementById('edit-bank-tesorero').value = window.appData.bankTesorero;
+            document.getElementById('edit-bank-rut').value = window.appData.bankRut;
+            document.getElementById('edit-bank-tipo').value = window.appData.bankTipo;
+            document.getElementById('edit-bank-num').value = window.appData.bankNum;
+            document.getElementById('edit-bank-email').value = window.appData.bankEmail;
+            document.getElementById('edit-bank-phone').value = window.appData.bankPhone;
+        };
+
+        window.onload = function() {
+            renderAppData();
+            updatePayType();
+            renderHistory();
+        };
+
+        // ADMIN MODAL & AUTH
+        window.openAdminModal = function() {
+            document.getElementById('admin-pin-input').value = '';
+            document.getElementById('modal-admin-login').classList.remove('hidden');
+        };
+
+        window.closeAdminModal = function() {
+            document.getElementById('modal-admin-login').classList.add('hidden');
+        };
+
+        window.checkAdminPin = function() {
+            const pin = document.getElementById('admin-pin-input').value;
+            if (pin === '1234' || pin === 'admin') {
+                closeAdminModal();
+                switchView('admin');
+            } else {
+                alert('PIN de Administrador incorrecto.');
+            }
+        };
+
+        window.quickAdminLogin = function() {
+            closeAdminModal();
+            switchView('admin');
+        };
+
+        // SWITCH VIEWS & TABS
+        window.switchView = function(view) {
+            const vSocio = document.getElementById('view-socio');
+            const vAdmin = document.getElementById('view-admin');
+            const btnSocio = document.getElementById('btn-mode-socio');
+            const btnAdmin = document.getElementById('btn-mode-admin');
+
+            if (view === 'socio') {
+                vSocio.classList.remove('hidden');
+                vAdmin.classList.add('hidden');
+                btnSocio.className = "px-3 py-1.5 rounded-lg text-xs md:text-sm font-semibold bg-white text-club-600 shadow transition-all hover:bg-green-50";
+                btnAdmin.className = "px-3 py-1.5 rounded-lg text-xs md:text-sm font-extrabold bg-amber-400 hover:bg-amber-500 text-gray-900 shadow-lg transition-all";
+            } else {
+                vSocio.classList.add('hidden');
+                vAdmin.classList.remove('hidden');
+                btnAdmin.className = "px-3 py-1.5 rounded-lg text-xs md:text-sm font-semibold bg-white text-club-600 shadow transition-all hover:bg-green-50";
+                btnSocio.className = "px-3 py-1.5 rounded-lg text-xs md:text-sm font-semibold bg-club-700 text-green-100 shadow transition-all hover:bg-club-500";
+            }
+        };
+
+        window.switchAdminTab = function(tabName) {
+            ['efectivo', 'config', 'history'].forEach(t => {
+                const el = document.getElementById(`admin-tab-${t}`);
+                const btn = document.getElementById(`tab-btn-${t}`);
+                if (t === tabName) {
+                    el.classList.remove('hidden');
+                    btn.className = "pb-2 px-1 tab-active font-semibold whitespace-nowrap";
+                } else {
+                    el.classList.add('hidden');
+                    btn.className = "pb-2 px-1 text-gray-500 hover:text-club-600 font-semibold whitespace-nowrap";
+                }
+            });
+            if(tabName === 'history') renderHistory();
+        };
+
+        // CALCULATIONS & FORM LOGIC
+        window.updatePayType = function() {
+            const type = document.querySelector('input[name="payType"]:checked').value;
+            const customContainer = document.getElementById('custom-amount-container');
+            const summaryType = document.getElementById('summary-pay-type');
+
+            if (type === 'mensual') {
+                customContainer.classList.add('hidden');
+                summaryType.innerText = 'Cuota Mensual';
+            } else if (type === 'anual') {
+                customContainer.classList.add('hidden');
+                summaryType.innerText = 'Cuota Anual';
+            } else {
+                customContainer.classList.remove('hidden');
+                summaryType.innerText = 'Aporte / Donación Voluntaria';
+            }
+            calculateTotal();
+        };
+
+        window.calculateTotal = function() {
+            const type = document.querySelector('input[name="payType"]:checked').value;
+            let total = 0;
+
+            if (type === 'mensual') {
+                total = window.appData.cuotaMensual;
+            } else if (type === 'anual') {
+                total = window.appData.cuotaAnual;
+            } else {
+                const customVal = document.getElementById('input-custom-amount').value;
+                total = customVal ? parseInt(customVal) : 0;
+            }
+
+            document.getElementById('summary-total-amount').innerText = '$' + Number(total).toLocaleString('es-CL');
+        };
+
+        window.convertFileToBase64 = function(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    window.tempFileBase64 = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        };
+
+        // SOCIO PAYMENT SUBMISSION
+        window.processSocioPayment = function() {
+            const nombre = document.getElementById('socio-nombre').value.trim();
+            const rut = document.getElementById('socio-rut').value.trim();
+            const email = document.getElementById('socio-email').value.trim();
+            const phone = document.getElementById('socio-phone').value.trim();
+            const numTrx = document.getElementById('socio-num-trx').value.trim();
+            const type = document.querySelector('input[name="payType"]:checked').value;
+
+            if (!nombre || !rut || !email || !phone) {
+                alert('Por favor, completa todos los datos obligatorios del socio.');
+                return;
+            }
+
+            let monto = 0;
+            let concepto = '';
+            if (type === 'mensual') {
+                monto = window.appData.cuotaMensual;
+                concepto = 'Cuota Mensual Social';
+            } else if (type === 'anual') {
+                monto = window.appData.cuotaAnual;
+                concepto = 'Cuota Anual Social';
+            } else {
+                monto = parseInt(document.getElementById('input-custom-amount').value);
+                if (!monto || monto <= 0) {
+                    alert('Por favor, ingresa un monto de donación válido.');
+                    return;
+                }
+                concepto = 'Donación Voluntaria';
+            }
+
+            const newRecord = {
+                id: 'REC-' + Math.floor(100000 + Math.random() * 900000),
+                fecha: new Date().toLocaleDateString('es-CL') + ' ' + new Date().toLocaleTimeString('es-CL', {hour: '2-digit', minute:'2-digit'}),
+                nombre,
+                rut,
+                email,
+                phone,
+                concepto,
+                metodo: 'Transferencia Bancaria',
+                numTrx: numTrx || 'Transferencia Web',
+                monto
+            };
+
+            if (!window.appData.history) window.appData.history = [];
+            window.appData.history.push(newRecord);
+            saveToStorage();
+            showReceiptModal(newRecord);
+        };
+
+        // CASH PAYMENT ADMIN
+        window.updateEfectivoMonto = function() {
+            const tipo = document.getElementById('efectivo-tipo').value;
+            const montoInput = document.getElementById('efectivo-monto');
+
+            if (tipo === 'mensual') montoInput.value = window.appData.cuotaMensual;
+            else if (tipo === 'anual') montoInput.value = window.appData.cuotaAnual;
+            else montoInput.value = '';
+        };
+
+        window.processCashPayment = function() {
+            const nombre = document.getElementById('efectivo-nombre').value.trim();
+            const rut = document.getElementById('efectivo-rut').value.trim();
+            const email = document.getElementById('efectivo-email').value.trim();
+            const phone = document.getElementById('efectivo-phone').value.trim();
+            const tipo = document.getElementById('efectivo-tipo').value;
+            const monto = parseInt(document.getElementById('efectivo-monto').value);
+
+            if (!nombre || !rut || !monto) {
+                alert('Ingresa al menos Nombre, RUT y Monto recibido.');
+                return;
+            }
+
+            let concepto = 'Cuota Mensual Social';
+            if (tipo === 'anual') concepto = 'Cuota Anual Social';
+            if (tipo === 'donacion') concepto = 'Donación Voluntaria';
+
+            const newRecord = {
+                id: 'REC-' + Math.floor(100000 + Math.random() * 900000),
+                fecha: new Date().toLocaleDateString('es-CL') + ' ' + new Date().toLocaleTimeString('es-CL', {hour: '2-digit', minute:'2-digit'}),
+                nombre,
+                rut,
+                email: email || window.appData.bankEmail,
+                phone: phone || window.appData.bankPhone,
+                concepto,
+                metodo: 'Efectivo / Presencial',
+                numTrx: 'Cobro Tesorería Directo',
+                monto
+            };
+
+            if (!window.appData.history) window.appData.history = [];
+            window.appData.history.push(newRecord);
+            saveToStorage();
+            showReceiptModal(newRecord);
+            document.getElementById('form-efectivo').reset();
+        };
+
+        // ADMIN SETTINGS SAVE
+        window.saveAdminSettings = function() {
+            window.appData.cuotaMensual = parseInt(document.getElementById('edit-val-mensual').value) || 5000;
+            window.appData.cuotaAnual = parseInt(document.getElementById('edit-val-anual').value) || 50000;
+            window.appData.bankTesorero = document.getElementById('edit-bank-tesorero').value.trim();
+            window.appData.bankRut = document.getElementById('edit-bank-rut').value.trim();
+            window.appData.bankTipo = document.getElementById('edit-bank-tipo').value.trim();
+            window.appData.bankNum = document.getElementById('edit-bank-num').value.trim();
+            window.appData.bankEmail = document.getElementById('edit-bank-email').value.trim();
+            window.appData.bankPhone = document.getElementById('edit-bank-phone').value.trim();
+
+            saveToStorage();
+            alert('¡Configuración actualizada y sincronizada correctamente!');
+        };
+
+        // HISTORY & EXPORT LOGIC
+        window.renderHistory = function() {
+            const tbody = document.getElementById('history-table-body');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            let total = 0;
+
+            const list = window.appData.history || [];
+
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center p-4 text-gray-400">No hay pagos o recaudaciones registradas.</td></tr>`;
+            } else {
+                list.slice().reverse().forEach(item => {
+                    total += Number(item.monto);
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-gray-50 border-b';
+                    tr.innerHTML = `
+                        <td class="p-3 font-bold text-club-600">${item.id}</td>
+                        <td class="p-3 whitespace-nowrap">${item.fecha}</td>
+                        <td class="p-3 font-semibold text-gray-800">${item.nombre}</td>
+                        <td class="p-3">${item.rut}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-club-600">${item.concepto}</span></td>
+                        <td class="p-3">${item.metodo} <br><span class="text-[10px] text-gray-400">${item.numTrx || ''}</span></td>
+                        <td class="p-3 text-right font-bold text-club-600">$${Number(item.monto).toLocaleString('es-CL')}</td>
+                        <td class="p-3 text-center">
+                            <button onclick="reprintReceipt('${item.id}')" title="Ver Comprobante" class="p-1 text-gray-500 hover:text-club-600">
+                                <i class="fas fa-receipt"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            document.getElementById('total-recaudado').innerText = '$' + Number(total).toLocaleString('es-CL');
+        };
+
+        window.filterHistoryTable = function() {
+            const query = document.getElementById('history-search').value.toLowerCase();
+            const filterType = document.getElementById('history-filter-type').value;
+            const rows = document.querySelectorAll('#history-table-body tr');
+
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                const matchesQuery = text.includes(query);
+                const matchesType = filterType === 'todos' || text.includes(filterType.toLowerCase());
+                if (matchesQuery && matchesType) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        };
+
+        window.exportToCSV = function() {
+            const list = window.appData.history || [];
+            if (list.length === 0) {
+                alert("No hay registros para exportar.");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,ID Comprobante,Fecha,Socio,RUT,Email,Telefono,Concepto,Metodo,N TRX,Monto CLP\n";
+            list.forEach(i => {
+                csvContent += `"${i.id}","${i.fecha}","${i.nombre}","${i.rut}","${i.email}","${i.phone}","${i.concepto}","${i.metodo}","${i.numTrx || ''}","${i.monto}"\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Recaudacion_CD_Santa_Marta_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+
+        // RECEIPT DISPLAY & MESSAGING
+        window.showReceiptModal = function(record) {
+            document.getElementById('receipt-badge').src = window.appData.badgeUrl;
+            document.getElementById('receipt-id').innerText = record.id;
+            document.getElementById('receipt-date').innerText = record.fecha;
+            document.getElementById('receipt-nombre').innerText = record.nombre;
+            document.getElementById('receipt-rut').innerText = record.rut;
+            document.getElementById('receipt-concepto').innerText = record.concepto;
+            document.getElementById('receipt-metodo').innerText = record.metodo;
+            document.getElementById('receipt-monto').innerText = '$' + Number(record.monto).toLocaleString('es-CL');
+
+            if(record.numTrx) {
+                document.getElementById('receipt-trx-row').classList.remove('hidden');
+                document.getElementById('receipt-trx').innerText = record.numTrx;
+            } else {
+                document.getElementById('receipt-trx-row').classList.add('hidden');
+            }
+
+            // WhatsApp link formatting
+            const targetPhone = window.appData.bankPhone.replace(/[^0-9]/g, '');
+            const msgWhatsApp = `Hola Tesorería Club Deportivo Santa Marta, adjunto datos de mi pago:\n\n` +
+                `📌 *Comprobante N°:* ${record.id}\n` +
+                `👤 *Socio:* ${record.nombre} (RUT: ${record.rut})\n` +
+                `⚽ *Concepto:* ${record.concepto}\n` +
+                `💳 *Método:* ${record.metodo} (${record.numTrx || 'Verificado'})\n` +
+                `💰 *Monto:* $${Number(record.monto).toLocaleString('es-CL')}\n\n` +
+                `Por favor confirmar la recepción. ¡Muchas gracias!`;
+
+            document.getElementById('btn-whatsapp-action').href = `https://wa.me/${targetPhone}?text=${encodeURIComponent(msgWhatsApp)}`;
+
+            // Email link formatting
+            const emailSubject = `Comprobante Pago ${record.concepto} - ${record.nombre}`;
+            const emailBody = `Estimado Tesorero (${window.appData.bankTesorero}),\n\nAdjunto información del aporte realizado al Club Deportivo Santa Marta:\n\n` +
+                `N° Recibo: ${record.id}\n` +
+                `Nombre Socio: ${record.nombre}\n` +
+                `RUT: ${record.rut}\n` +
+                `Monto: $${Number(record.monto).toLocaleString('es-CL')}\n` +
+                `Concepto: ${record.concepto}\n` +
+                `Transacción / Ref: ${record.numTrx || 'N/A'}\n\n` +
+                `Saludos Cordiales.`;
+
+            document.getElementById('btn-email-action').href = `mailto:${window.appData.bankEmail},${record.email}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+
+            document.getElementById('modal-receipt').classList.remove('hidden');
+        };
+
+        window.reprintReceipt = function(id) {
+            const record = (window.appData.history || []).find(r => r.id === id);
+            if (record) showReceiptModal(record);
+        };
+
+        window.closeReceiptModal = function() {
+            document.getElementById('modal-receipt').classList.add('hidden');
+        };
+
+        // BADGE UPLOAD MODAL LOGIC
+        window.openBadgeModal = function() {
+            document.getElementById('badge-preview').src = window.appData.badgeUrl;
+            document.getElementById('badge-url-input').value = window.appData.badgeUrl.startsWith('data:') ? '' : window.appData.badgeUrl;
+            document.getElementById('modal-badge').classList.remove('hidden');
+        };
+
+        window.closeBadgeModal = function() {
+            document.getElementById('modal-badge').classList.add('hidden');
+            window.tempBadgeBase64 = null;
+        };
+
+        window.previewBadgeFile = function(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    window.tempBadgeBase64 = e.target.result;
+                    document.getElementById('badge-preview').src = window.tempBadgeBase64;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        };
+
+        window.saveBadge = function() {
+            const urlInput = document.getElementById('badge-url-input').value.trim();
+
+            if (window.tempBadgeBase64) {
+                window.appData.badgeUrl = window.tempBadgeBase64;
+            } else if (urlInput) {
+                window.appData.badgeUrl = urlInput;
+            }
+
+            saveToStorage();
+            closeBadgeModal();
+        };
+    </script>
+</body>
+</html>
